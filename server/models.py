@@ -1,10 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+
 class DictionaryEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    form = db.Column(db.String(80), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    form = db.Column(db.String(80), nullable=False)
     translations = db.relationship('Translation', backref='entry', lazy=True)
     tags = db.relationship('Tag', backref='entry', lazy=True)
     contents = db.relationship('Content', backref='entry', lazy=True)
