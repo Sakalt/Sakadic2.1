@@ -29,7 +29,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if User.query.filter_by(username=username).first():
-            flash('Username already exists')
+            flash('ユーザー名は既に存在します')
             return redirect(url_for('register'))
         new_user = User(username=username, password=password)
         db.session.add(new_user)
@@ -48,7 +48,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Invalid username or password')
+            flash('ユーザー名またはパスワードが無効です')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -60,14 +60,14 @@ def logout():
 @app.route('/entries', methods=['GET'])
 @login_required
 def get_entries():
-    entries = DictionaryEntry.query.all()
+    entries = DictionaryEntry.query.filter_by(user_id=current_user.id).all()
     return jsonify([entry.to_dict() for entry in entries])
 
 @app.route('/entries', methods=['POST'])
 @login_required
 def add_entry():
     data = request.json
-    new_entry = DictionaryEntry(form=data['form'])
+    new_entry = DictionaryEntry(user_id=current_user.id, form=data['form'])
     db.session.add(new_entry)
     db.session.commit()
     return jsonify(new_entry.to_dict()), 201
@@ -91,7 +91,7 @@ def settings():
 @app.route('/export', methods=['GET'])
 @login_required
 def export_json():
-    data = {"words": [entry.to_dict() for entry in DictionaryEntry.query.all()], "version": 2}
+    data = {"words": [entry.to_dict() for entry in DictionaryEntry.query.filter_by(user_id=current_user.id).all()], "version": 2}
     return jsonify(data)
 
 if __name__ == '__main__':
