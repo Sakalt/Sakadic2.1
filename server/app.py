@@ -1,19 +1,16 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from models import db, User, DictionaryEntry, load_example_sentences
+from utils import generate_sentence, save_sentence
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dictionary.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
 
-db = SQLAlchemy(app)
+db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -74,6 +71,12 @@ def add_entry():
     db.session.add(new_entry)
     db.session.commit()
     return jsonify(new_entry.to_dict()), 201
+
+@app.route('/example_sentences', methods=['GET'])
+@login_required
+def example_sentences():
+    sentences = load_example_sentences()
+    return jsonify(sentences)
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
