@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>辞書</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ dictionary.name }}</h1>
+        <form id="entryForm">
+            <input type="text" id="form" name="form" placeholder="新しい単語を入力" required>
+            <button type="submit">単語を追加</button>
+        </form>
+        <h2>単語一覧</h2>
+        <div id="entries"></div>
+        <p><a href="/home">ホームに戻る</a></p>
+    </div>
+    <script>
+        document.getElementById('entryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = document.getElementById('form').value;
+            const url = `/user/{{ current_user.username }}/dict/{{ dictionary.id }}/entries`;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ form: form }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                loadEntries();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        function loadEntries() {
+            const url = `/user/{{ current_user.username }}/dict/{{ dictionary.id }}/entries`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const entriesDiv = document.getElementById('entries');
+                    entriesDiv.innerHTML = '';
+                    data.forEach(entry => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.innerHTML = `<p>${entry.entry.form}</p>`;
+                        entriesDiv.appendChild(entryDiv);
+                    });
+                });
+        }
+
+        loadEntries();
+    </script>
+</body>
+</html>
