@@ -7,10 +7,17 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    dictionaries = db.relationship('Dictionary', backref='user', lazy=True)
+
+class Dictionary(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
+    entries = db.relationship('DictionaryEntry', backref='dictionary', lazy=True)
 
 class DictionaryEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    dictionary_id = db.Column(db.Integer, db.ForeignKey('dictionary.id'), nullable=False)
     form = db.Column(db.String(80), nullable=False)
     translations = db.relationship('Translation', backref='entry', lazy=True)
     tags = db.relationship('Tag', backref='entry', lazy=True)
