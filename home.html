@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホームページ</title>
+    <link rel="stylesheet" href="/Sakadic2.1/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ホームページ</h1>
+        <h2>辞書を作成する</h2>
+        <form action="/create_dictionary" method="post">
+            <input type="text" name="name" placeholder="辞書の名前" required>
+            <button type="submit">辞書を作成</button>
+        </form>
+        <h2>あなたの辞書</h2>
+        <ul>
+            {% for dictionary in dictionaries %}
+                <li><a href="/user/{{ current_user.username }}/dict/{{ dictionary.id }}">{{ dictionary.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <p><a href="/logout">ログアウト</a></p>
+    </div>
+</body>
+</html>
