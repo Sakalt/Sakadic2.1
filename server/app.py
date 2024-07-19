@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from models import db, User, Dictionary, DictionaryEntry
+from database import init_db, db
+from models import User, Dictionary, DictionaryEntry
 from utils import generate_sentence, save_sentence, load_example_sentences
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/Sakadic2.1')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dictionary.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
+app.template_folder = "."
 
-db.init_app(app)
+init_db(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -21,7 +24,7 @@ def index():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     else:
-        return redirect(url_for('login'))
+        return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -40,7 +43,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST']:
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
@@ -70,7 +73,7 @@ def create_dictionary():
     new_dictionary = Dictionary(user_id=current_user.id, name=name)
     db.session.add(new_dictionary)
     db.session.commit()
-    return redirect(url_for('view_dictionary', dictionary_id=new_dictionary.id))
+    return redirect(url_for('view_dictionary', username=current_user.username, dictionary_id=new_dictionary.id))
 
 @app.route('/user/<username>/dict/<int:dictionary_id>')
 @login_required
