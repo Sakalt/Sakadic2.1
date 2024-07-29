@@ -10,7 +10,7 @@
     <div class="container">
         <h1>ホームページ</h1>
         <h2>辞書を作成する</h2>
-        <form action="/create_dictionary" method="post">
+        <form action="{{ url_for('create_dictionary') }}" method="post">
             <input type="text" name="name" placeholder="辞書の名前" required>
             <button type="submit">辞書を作成</button>
         </form>
