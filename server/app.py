@@ -66,14 +66,14 @@ def home():
     dictionaries = Dictionary.query.filter_by(user_id=current_user.id).all()
     return render_template('home.html', dictionaries=dictionaries)
 
-@app.route('/Sakadic2.1/create_dictionary.html', methods=['POST'])
+@app.route('/create_dictionary', methods=['POST'])
 @login_required
 def create_dictionary():
     name = request.form['name']
     new_dictionary = Dictionary(user_id=current_user.id, name=name)
     db.session.add(new_dictionary)
     db.session.commit()
-    return redirect(url_for('view_dictionary', username=current_user.username, dictionary_id=new_dictionary.id))
+    return redirect(url_for('home'))
 
 @app.route('Sakadic2.1//user/<username>/dict/<int:dictionary_id>')
 @login_required
